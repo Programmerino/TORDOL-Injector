@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-humble/locstor"
@@ -12,22 +13,40 @@ import (
 
 var jQuery = jquery.NewJQuery
 var chance = 10
-var injectees []string
-var injecteesSave []string
+var truthInjectees []string
+var dareInjectees []string
+var truthInjecteesSave []string
+var dareInjecteesSave []string
 
-func start(inputInjects []string) {
-	injectees = make([]string, len(inputInjects))
-	copy(injectees, inputInjects)
-	injecteesSave = make([]string, len(injectees))
-	copy(injecteesSave, injectees)
+func start(truthInjects, dareInjects []string) {
+	truthInjectees = make([]string, len(truthInjects))
+	copy(truthInjectees, truthInjects)
+	truthInjecteesSave = make([]string, len(truthInjectees))
+	copy(truthInjecteesSave, truthInjectees)
+	dareInjectees = make([]string, len(dareInjects))
+	copy(dareInjectees, dareInjects)
+	dareInjecteesSave = make([]string, len(dareInjectees))
+	copy(dareInjecteesSave, dareInjectees)
 	store := locstor.NewDataStore(locstor.JSONEncoding)
-	if err := store.Save("original", injecteesSave); err != nil {
-		println("Couldn't save original!")
+	if err := store.Save("truthOriginal", truthInjecteesSave); err != nil {
+		println("Couldn't save truthOriginal!")
+	}
+	if err := store.Save("dareOriginal", dareInjecteesSave); err != nil {
+		println("Couldn't save dareOriginal!")
 	}
 	load()
 	if determine() {
-		setMessage(injectees[0])
-		injectees = append(injectees[:0], injectees[0+1:]...)
+		if strings.Contains(js.Global.Get("location").Get("href").String(), "truth") {
+			println("Truth")
+			setMessage(truthInjectees[0])
+			truthInjectees = append(truthInjectees[:0], truthInjectees[0+1:]...)
+		} else if strings.Contains(js.Global.Get("location").Get("href").String(), "dare") {
+			println("Dare")
+			setMessage(dareInjectees[0])
+			dareInjectees = append(dareInjectees[:0], dareInjectees[0+1:]...)
+		} else {
+			println("Not a dare or a truth?")
+		}
 	}
 	save()
 }
@@ -65,27 +84,43 @@ func save() {
 	if err := store.Save("chance", chance); err != nil {
 		println("Couldn't save chance!")
 	}
-	if err := store.Save("injectees", injectees); err != nil {
-		println("Couldn't save injectees!")
+	if err := store.Save("truthInjectees", truthInjectees); err != nil {
+		println("Couldn't save truthInjectees!")
+	}
+	if err := store.Save("dareInjectees", dareInjectees); err != nil {
+		println("Couldn't save dareInjectees!")
 	}
 }
 
 func load() {
-	var original []string
+	var truthOriginal []string
+	var dareOriginal []string
 	store := locstor.NewDataStore(locstor.JSONEncoding)
 	if err := store.Find("chance", &chance); err != nil {
 		println("Couldn't load chance!", err)
 	}
-	if err := store.Find("injectees", &injectees); err != nil {
-		println("Couldn't load injectees!", err)
+	if err := store.Find("truthInjectees", &truthInjectees); err != nil {
+		println("Couldn't load truthInjectees!", err)
 	}
-	if err := store.Find("original", &original); err != nil {
-		println("Couldn't load original!", err)
+	if err := store.Find("dareInjectees", &dareInjectees); err != nil {
+		println("Couldn't load truthInjectees!", err)
+	}
+	if err := store.Find("truthOriginal", &truthOriginal); err != nil {
+		println("Couldn't load truthOriginal!", err)
 	} else {
-		if !testEq(original, injecteesSave) {
-			println(original, injecteesSave)
-			println("Injectees has changed! Resetting original and resetting all values to defaults")
-			//reset()
+		if !testEq(truthOriginal, truthInjecteesSave) {
+			println(truthOriginal, truthInjecteesSave)
+			println("Injectees has changed! Resetting truthOriginal and resetting all values to defaults")
+			reset()
+		}
+	}
+	if err := store.Find("dareOriginal", &dareOriginal); err != nil {
+		println("Couldn't load dareOriginal!", err)
+	} else {
+		if !testEq(dareOriginal, dareInjecteesSave) {
+			println(dareOriginal, dareInjecteesSave)
+			println("Injectees has changed! Resetting dareOriginal and resetting all values to defaults")
+			reset()
 		}
 	}
 }
@@ -115,11 +150,17 @@ func testEq(a, b []string) bool {
 
 func reset() {
 	store := locstor.NewDataStore(locstor.JSONEncoding)
-	if err := store.Delete("original"); err != nil {
-		println("Couldn't delete original!")
+	if err := store.Delete("truthOriginal"); err != nil {
+		println("Couldn't delete truthOriginal!")
 	}
-	if err := store.Save("original", injecteesSave); err != nil {
-		println("Couldn't save original!")
+	if err := store.Delete("dareOriginal"); err != nil {
+		println("Couldn't delete dareOriginal!")
+	}
+	if err := store.Save("truthOriginal", truthInjecteesSave); err != nil {
+		println("Couldn't save truthOriginal!")
+	}
+	if err := store.Save("dareOriginal", dareInjecteesSave); err != nil {
+		println("Couldn't save dareOriginal!")
 	}
 	chance = 10
 	save()
