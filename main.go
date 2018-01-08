@@ -1,11 +1,8 @@
 package main
 
 import (
-	"math/rand"
 	"os"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-humble/locstor"
 	"github.com/gopherjs/gopherjs/js"
@@ -13,7 +10,6 @@ import (
 )
 
 var jQuery = jquery.NewJQuery
-var chance = 10
 var truthInjectees []string
 var dareInjectees []string
 var truthInjecteesSave []string
@@ -51,18 +47,16 @@ func start(truthInjects, dareInjects []string) {
 }
 
 func gucciGang() {
-	if determine() {
-		if strings.Contains(js.Global.Get("location").Get("href").String(), "truth") && len(truthInjectees) > 0 {
-			println("Truth")
-			setMessage(truthInjectees[0])
-			truthInjectees = append(truthInjectees[:0], truthInjectees[0+1:]...)
-		} else if strings.Contains(js.Global.Get("location").Get("href").String(), "dare") && len(dareInjectees) > 0 {
-			println("Dare")
-			setMessage(dareInjectees[0])
-			dareInjectees = append(dareInjectees[:0], dareInjectees[0+1:]...)
-		} else {
-			println("Out of truths/dares")
-		}
+	if strings.Contains(js.Global.Get("location").Get("href").String(), "truth") && len(truthInjectees) > 0 {
+		println("Truth")
+		setMessage(truthInjectees[0])
+		truthInjectees = append(truthInjectees[:0], truthInjectees[0+1:]...)
+	} else if strings.Contains(js.Global.Get("location").Get("href").String(), "dare") && len(dareInjectees) > 0 {
+		println("Dare")
+		setMessage(dareInjectees[0])
+		dareInjectees = append(dareInjectees[:0], dareInjectees[0+1:]...)
+	} else {
+		println("Out of truths/dares")
 	}
 	save()
 	os.Exit(0)
@@ -74,33 +68,12 @@ func main() {
 	})
 }
 
-func determine() (returnVal bool) {
-	s1 := rand.NewSource(time.Now().UnixNano())
-	r1 := rand.New(s1)
-	randNum := r1.Intn(chance)
-	if randNum == 0 {
-		println("Showing \"injectee\"!")
-		returnVal = true
-	} else {
-		println("Chances dictated " + strconv.Itoa(randNum) + " where 0 was needed. Chance is " + strconv.Itoa(chance))
-		returnVal = false
-		chance--
-	}
-	return
-}
-
 func setMessage(message string) {
 	jQuery(".mainContent").SetText(message)
 }
 
 func save() {
 	store := locstor.NewDataStore(locstor.JSONEncoding)
-	if err := store.Delete("chance"); err != nil {
-		println("Couldn't delete chance!")
-	}
-	if err := store.Save("chance", chance); err != nil {
-		println("Couldn't save chance!")
-	}
 	if err := store.Save("truthInjectees", truthInjectees); err != nil {
 		println("Couldn't save truthInjectees!")
 	}
@@ -113,9 +86,6 @@ func load() {
 	var truthOriginal []string
 	var dareOriginal []string
 	store := locstor.NewDataStore(locstor.JSONEncoding)
-	if err := store.Find("chance", &chance); err != nil {
-		println("Couldn't load chance!", err)
-	}
 	if err := store.Find("truthInjectees", &truthInjectees); err != nil {
 		println("Couldn't load truthInjectees!", err)
 	}
@@ -179,6 +149,5 @@ func reset() {
 	if err := store.Save("dareOriginal", dareInjecteesSave); err != nil {
 		println("Couldn't save dareOriginal!")
 	}
-	chance = 10
 	save()
 }
