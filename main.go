@@ -43,6 +43,13 @@ func start(truthInjects, dareInjects []string) {
 			gucciGang()
 		}
 	}, false)
+	js.Global.Call("addEventListener", "keydown", func(event *js.Object) {
+		keycode := event.Get("keyCode").Int()
+		if keycode == enter && !alreadyDone {
+			alreadyDone = true
+			gucciGang()
+		}
+	}, false)
 }
 
 func gucciGang() {
@@ -55,7 +62,12 @@ func gucciGang() {
 		setMessage(dareInjectees[0])
 		dareInjectees = append(dareInjectees[:0], dareInjectees[0+1:]...)
 	} else {
-		println("Out of truths/dares")
+		println("Out of truths/dares, starting over")
+		if strings.Contains(js.Global.Get("location").Get("href").String(), "truth") {
+			truthInjectees = truthInjecteesSave
+		} else if strings.Contains(js.Global.Get("location").Get("href").String(), "dare") {
+			dareInjectees = dareInjecteesSave
+		}
 	}
 	save()
 }
