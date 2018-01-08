@@ -36,16 +36,16 @@ func start(truthInjects, dareInjects []string) {
 	}
 	load()
 	if determine() {
-		if strings.Contains(js.Global.Get("location").Get("href").String(), "truth") {
+		if strings.Contains(js.Global.Get("location").Get("href").String(), "truth") && len(truthInjectees) > 0 {
 			println("Truth")
 			setMessage(truthInjectees[0])
 			truthInjectees = append(truthInjectees[:0], truthInjectees[0+1:]...)
-		} else if strings.Contains(js.Global.Get("location").Get("href").String(), "dare") {
+		} else if strings.Contains(js.Global.Get("location").Get("href").String(), "dare") && len(dareInjectees) > 0 {
 			println("Dare")
 			setMessage(dareInjectees[0])
 			dareInjectees = append(dareInjectees[:0], dareInjectees[0+1:]...)
 		} else {
-			println("Not a dare or a truth?")
+			println("Out of truths/dares")
 		}
 	}
 	save()
