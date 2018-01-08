@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"strings"
 
 	"github.com/go-humble/locstor"
@@ -59,7 +58,6 @@ func gucciGang() {
 		println("Out of truths/dares")
 	}
 	save()
-	os.Exit(0)
 }
 
 func main() {
