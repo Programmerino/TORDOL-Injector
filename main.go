@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,11 @@ var truthInjectees []string
 var dareInjectees []string
 var truthInjecteesSave []string
 var dareInjecteesSave []string
+var alreadyDone = false
+
+const (
+	enter = 13
+)
 
 func start(truthInjects, dareInjects []string) {
 	truthInjectees = make([]string, len(truthInjects))
@@ -35,6 +41,16 @@ func start(truthInjects, dareInjects []string) {
 		println("Couldn't save dareOriginal!")
 	}
 	load()
+	js.Global.Call("addEventListener", "keyup", func(event *js.Object) {
+		keycode := event.Get("keyCode").Int()
+		if keycode == enter && !alreadyDone {
+			alreadyDone = true
+			gucciGang()
+		}
+	}, false)
+}
+
+func gucciGang() {
 	if determine() {
 		if strings.Contains(js.Global.Get("location").Get("href").String(), "truth") && len(truthInjectees) > 0 {
 			println("Truth")
@@ -49,6 +65,7 @@ func start(truthInjects, dareInjects []string) {
 		}
 	}
 	save()
+	os.Exit(0)
 }
 
 func main() {
