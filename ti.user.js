@@ -5,7 +5,7 @@
 // @include http://www.tordol.com/dare.jsp
 // @include http://www.tordol.com/truth.jsp
 // @require https://code.jquery.com/jquery-3.2.1.slim.min.js
-// @require https://rawgit.com/SkyrisBactera/TORDOL-Injector/master/TORDOL-Injector.js
+// @require https://cdn.jsdelivr.net/gh/SkyrisBactera/TORDOL-Injector@master/TORDOL-Injector.js
 // ==/UserScript==
 
 //Edit the following for your injections
